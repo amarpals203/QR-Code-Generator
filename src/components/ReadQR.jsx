@@ -4,6 +4,7 @@ import QrScanner from 'qr-scanner';
 const ReadQR = () => {
     const [file, setFile] = useState(null);
     const [data, setData] = useState(null);
+    const [error, setError] = useState(null); // State to track error messages
     const fileRef = useRef();
 
     const handleClick = () => {
@@ -13,8 +14,15 @@ const ReadQR = () => {
     const handleChange = async (e) => {
         const file = e.target.files[0];
         setFile(file);
-        const result = await QrScanner.scanImage(file);
-        setData(result);
+        setError(null); // Reset error when a new file is selected
+        setData(null); // Reset previous data
+
+        try {
+            const result = await QrScanner.scanImage(file);
+            setData(result);
+        } catch (err) {
+            setError('QR code not found in the image. Please upload a valid QR code.');
+        }
     };
 
     return (
@@ -43,6 +51,13 @@ const ReadQR = () => {
                         {data && (
                             <p className='display-5 fw-bold text-center mt-4'>
                                 Data: {data}
+                            </p>
+                        )}
+
+                        {/* Display error message if QR code is not found */}
+                        {error && (
+                            <p className='text-danger text-center mt-4'>
+                                {error}
                             </p>
                         )}
                     </div>
